@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -60,6 +61,21 @@ public class OptionsController {
             }
         }catch (Exception e){
             return new ResponseEntity<>((Options) null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @GetMapping
+    public ResponseEntity<List<Options>> getAll(){
+        List<Options> options = optionsService.findAll();
+        try {
+            if (options.isEmpty()){
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }else {
+                return new ResponseEntity<>(options, HttpStatus.OK);
+            }
+        }catch (Exception e){
+            return new ResponseEntity<>((List<Options>) null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

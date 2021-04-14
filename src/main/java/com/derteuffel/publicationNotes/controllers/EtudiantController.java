@@ -40,9 +40,10 @@ public class EtudiantController {
 
 
 
-    @PostMapping
-    public ResponseEntity<UserInfo> save(@Valid @RequestBody UserInfoDto userInfo) {
-         UserInfo user = userInfoService.save(userInfo);
+    @PostMapping("/{id}")
+    public ResponseEntity<UserInfo> save(@Valid @RequestBody UserInfoDto userInfo, @PathVariable Long id) {
+
+        UserInfo user = userInfoService.save(userInfo, id);
          return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
@@ -90,17 +91,11 @@ public class EtudiantController {
 
 
         List<UserInfo> lists = new ArrayList<>();
-        List<User> userList = userRepository.findAll();
         List<UserInfo> userInfos = userInfoService.getAllByOptions(id);
+        System.out.println(userInfos);
 
         try {
-            for (User user : userList){
-                if (user.getRole().equals(Role.ETUDIANT)){
-                    if (userInfos.contains(user.getUserInfo())) {
-                        lists.add(user.getUserInfo());
-                    }
-                }
-            }
+           userInfos.forEach(lists :: add);
             if (lists.isEmpty()){
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }else {
@@ -134,8 +129,8 @@ public class EtudiantController {
     }
 
 
-    @PostMapping("/many/saves")
-    public void saveUsers(@RequestParam("file") MultipartFile file) throws IOException {
+    @PostMapping("/many/saves/{id}")
+    public void saveUsers(@RequestParam("file") MultipartFile file, @PathVariable Long id) throws IOException {
         try {
 
             if (!(file.isEmpty())) {
@@ -150,6 +145,6 @@ public class EtudiantController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        userInfoService.saveUsers(location+"/"+file.getOriginalFilename());
+        userInfoService.saveUsers(location+"/"+file.getOriginalFilename(), id);
     }
 }

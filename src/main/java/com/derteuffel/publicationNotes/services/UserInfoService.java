@@ -1,5 +1,6 @@
 package com.derteuffel.publicationNotes.services;
 
+import com.derteuffel.publicationNotes.entities.Options;
 import com.derteuffel.publicationNotes.entities.User;
 import com.derteuffel.publicationNotes.entities.UserInfo;
 import com.derteuffel.publicationNotes.enums.Niveau;
@@ -7,6 +8,7 @@ import com.derteuffel.publicationNotes.enums.Role;
 import com.derteuffel.publicationNotes.enums.Sexe;
 import com.derteuffel.publicationNotes.helpers.Generations;
 import com.derteuffel.publicationNotes.helpers.UserInfoDto;
+import com.derteuffel.publicationNotes.repositories.OptionsRepository;
 import com.derteuffel.publicationNotes.repositories.UserInfoRepository;
 import com.derteuffel.publicationNotes.repositories.UserRepository;
 import org.apache.poi.ss.usermodel.*;
@@ -33,13 +35,21 @@ public class UserInfoService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private OptionsRepository optionsRepository;
 
-    public UserInfo save(UserInfoDto userInfo){
+
+    public UserInfo save(UserInfoDto userInfo, Long id ){
         UserInfo  newUser = new UserInfo(
         );
         newUser.setEmail(userInfo.getEmail());
         newUser.setMatricule(userInfo.getMatricule());
-        newUser.setTelephone(userInfo.getTelephone());
+        if (userInfo.getTelephone().startsWith("0")){
+            newUser.setTelephone("+243"+userInfo.getTelephone().substring(1));
+        }else if (userInfo.getTelephone().startsWith("+243")){
+            newUser.setTelephone(userInfo.getTelephone());
+        }
+
         newUser.setNumIdentite(userInfo.getNumIdentite());
         newUser.setLastName(userInfo.getLastName());
         newUser.setInstitution(userInfo.getInstitution());
@@ -89,6 +99,8 @@ public class UserInfoService {
                     newUser.setNiveau(Niveau.CYCLE_DOCTORAT);
         }
 
+        Options options = optionsRepository.getOne(id);
+        newUser.setOptions(options);
 
         userInfoRepository.save(newUser);
         User user = new User();
@@ -110,7 +122,11 @@ public class UserInfoService {
         );
         newUser.setEmail(userInfo.getEmail());
         newUser.setMatricule(userInfo.getMatricule());
-        newUser.setTelephone(userInfo.getTelephone());
+        if (userInfo.getTelephone().startsWith("0")){
+            newUser.setTelephone("+243"+userInfo.getTelephone().substring(1));
+        }else if (userInfo.getTelephone().startsWith("+243")){
+            newUser.setTelephone(userInfo.getTelephone());
+        }
         newUser.setNumIdentite(userInfo.getNumIdentite());
         newUser.setLastName(userInfo.getLastName());
         newUser.setInstitution(userInfo.getInstitution());
@@ -221,7 +237,11 @@ public class UserInfoService {
         userInfo1.setNiveau(userInfo.getNiveau());
         userInfo1.setNumIdentite(userInfo.getNumIdentite());
         userInfo1.setSexe(userInfo.getSexe());
-        userInfo1.setTelephone(userInfo.getTelephone());
+        if (userInfo.getTelephone().startsWith("0")){
+            userInfo1.setTelephone("+243"+userInfo.getTelephone().substring(1));
+        }else if (userInfo.getTelephone().startsWith("+243")){
+            userInfo1.setTelephone(userInfo.getTelephone());
+        }
         User user = userRepository.findByUsername(userInfo1.getMatricule()).get();
         if (!(userInfo.getMatricule().equals(user.getUsername()))){
             userInfo1.setMatricule(userInfo.getMatricule());
@@ -239,8 +259,9 @@ public class UserInfoService {
         return userInfo1;
     }
 
-    public  void saveUsers(String filename) throws IOException {
+    public  void saveUsers(String filename, Long id) throws IOException {
 
+        Options options = optionsRepository.getOne(id);
         Generations generations = new Generations();
         FileInputStream file = new FileInputStream(new File(filename));
         Workbook workbook = new XSSFWorkbook(file);
@@ -326,6 +347,11 @@ public class UserInfoService {
             userInfo.setLastName(data.get(j).get(3));
             userInfo.setNumIdentite(Double.valueOf(""+data.get(j).get(8)).longValue()+"");
             userInfo.setTelephone(Double.valueOf(""+data.get(j).get(7)).longValue()+"");
+            if (userInfo.getTelephone().startsWith("0")){
+                userInfo.setTelephone("+243"+userInfo.getTelephone().substring(1));
+            }else if (userInfo.getTelephone().startsWith("+243")){
+                userInfo.setTelephone(userInfo.getTelephone());
+            }
             userInfo.setMatricule(Double.valueOf(""+data.get(j).get(0)).longValue()+"");
             userInfo.setEmail(data.get(j).get(6));
             userInfo.setMinervalles(false);
@@ -333,6 +359,7 @@ public class UserInfoService {
             userInfo.setEnrollementMiSession(false);
             userInfo.setEnrollementDeuxiemeSession(false);
             userInfo.setAccount(false);
+            userInfo.setOptions(options);
             userInfoRepository.save(userInfo);
 
             // Pass account values
