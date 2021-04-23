@@ -2,6 +2,7 @@ package com.derteuffel.publicationNotes.services;
 
 import com.derteuffel.publicationNotes.entities.Note;
 import com.derteuffel.publicationNotes.entities.Session;
+import com.derteuffel.publicationNotes.entities.User;
 import com.derteuffel.publicationNotes.entities.UserInfo;
 import com.derteuffel.publicationNotes.enums.Niveau;
 import com.derteuffel.publicationNotes.enums.Periode;
@@ -10,6 +11,7 @@ import com.derteuffel.publicationNotes.helpers.NoteDto;
 import com.derteuffel.publicationNotes.repositories.NoteRepository;
 import com.derteuffel.publicationNotes.repositories.SessionRepository;
 import com.derteuffel.publicationNotes.repositories.UserInfoRepository;
+import com.derteuffel.publicationNotes.repositories.UserRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,9 @@ public class SessionService {
 
     @Autowired
     private NoteRepository noteRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private UserInfoRepository userInfoRepository;
@@ -441,7 +446,7 @@ public class SessionService {
         return sessionRepository.findAllByUserInfo_Id(id);
     }
 
-    public Session findByUserMatriculeAndNameAndNiveau(String matricule, String name, String niveau){
+    public Session findByUserMatriculeAndNameAndNiveau(String matricule, String name, String niveau, String telephone){
         Session session = new Session();
         MessageSending messageSending = new MessageSending();
         UserInfo userInfo = userInfoRepository.findByMatricule(matricule).get();
@@ -478,6 +483,9 @@ public class SessionService {
                         System.out.println("Vous n'avez pas finaliser avec vos minervalles et/ou votre enrollement");
                         messageSending.sendMessage(userInfo.getTelephone(),"Bonjour "+userInfo.getFirstName()+" "+userInfo.getLastName()+" "+userInfo.getName()+" Desole! vous ne pouvez pas consulter vos note a partir de ce service car vous n'avez pas finaliser avec le paiement de vos minervalles et/ou votre enrollement");
                         session = new Session();
+                    }else {
+                        session.setActive(true);
+                        sessionRepository.save(session);
                     }
                 }
                 break;
@@ -513,6 +521,9 @@ public class SessionService {
                         System.out.println("Vous n'avez pas finaliser avec vos minervalles et/ou votre enrollement");
                         messageSending.sendMessage(userInfo.getTelephone(),"Bonjour "+userInfo.getFirstName()+" "+userInfo.getLastName()+" "+userInfo.getName()+" Desole! vous ne pouvez pas consulter vos note a partir de ce service car vous n'avez pas finaliser avec le paiement de vos minervalles et/ou votre enrollement");
                         session = new Session();
+                    }else {
+                        session.setActive(true);
+                        sessionRepository.save(session);
                     }
                 }
                 break;
@@ -548,6 +559,9 @@ public class SessionService {
                         System.out.println("Vous n'avez pas finaliser avec vos minervalles et/ou votre enrollement");
                         messageSending.sendMessage(userInfo.getTelephone(),"Bonjour "+userInfo.getFirstName()+" "+userInfo.getLastName()+" "+userInfo.getName()+" Desole! vous ne pouvez pas consulter vos note a partir de ce service car vous n'avez pas finaliser avec le paiement de vos minervalles et/ou votre enrollement");
                         session = new Session();
+                    }else {
+                        session.setActive(true);
+                        sessionRepository.save(session);
                     }
                 }
                 break;
@@ -566,7 +580,7 @@ public class SessionService {
         }
         System.out.println(notesValues);
         message = "Resultats de la "+session.getName()+", en date du "+session.getSessionDate()+", "+session.getNiveau()+", les notes :"+notesValues+", Total :"+session.getTotal()+", Pourcentage : "+session.getPercentage()+", Nombre de cours echoues : "+session.getUvLostNumber()+", Decision finale : "+session.getDecision();
-        messageSending.sendMessage("0976632858", message);
+        messageSending.sendMessage(telephone, message);
         System.out.println(message);
         return session;
     }
@@ -664,6 +678,14 @@ public class SessionService {
         }
         System.out.println(session.getName()+" -- "+session.getNiveau()+" -- "+session.getPercentage()+" -- "+session.getSessionDate());
         return session;
+    }
+
+    public List<Session> findAllByUserAndActive(Long id){
+        List<Session> sessions = new ArrayList<>();
+        User user = userRepository.getOne(id);
+
+        sessionRepository.findAllByUserInfo_IdAndActive(user.getUserInfo().getId(), true).forEach(sessions :: add);
+        return sessions;
     }
 
     public List<Session> findAllByUserAndNiveau(Long id, String niveau){

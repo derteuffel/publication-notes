@@ -50,9 +50,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 //These can be reachable for just have doyen role.
                 .antMatchers("/api/doyen/**","/api/departements/**","/api/options/**","/api/etudiants/**").hasAnyRole("ADMIN","ROOT","DOYEN")
                 //These can be reachable for just have payment role.
-                .antMatchers("/api/payments/**").hasAnyRole("ADMIN","ROOT","PAIEMENT")
+                .antMatchers("/api/payments/**").hasAnyRole("ADMIN","ROOT","PAIEMENT","ETUDIANT")
                 //These can be reachable for just have admin role.
-                .antMatchers("/api/notes/**").hasAnyRole("ADMIN","ROOT","NOTE")
+                .antMatchers("/api/notes/**").hasAnyRole("ADMIN","ROOT","NOTE","ETUDIANT")
                 //all remaining paths should need authentication.
                 .anyRequest().fullyAuthenticated()
                 .and()
@@ -60,7 +60,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .logout().permitAll()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/api/auth/logout", "POST")).and()
                 //login form and path
-                .formLogin().loginPage("/api/auth/login").and()
+                .formLogin().loginPage("/api/auth/login")
+                .loginPage("/api/auth/login/mobile")
+                .and()
                 //enable basic authentication. Http header: basis username:password
                 .httpBasic().and()
                 //Cross side request forgery.
@@ -83,5 +85,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 registry.addMapping("/**").allowedOrigins("*").allowedMethods("*");
             }
         };
+    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 }

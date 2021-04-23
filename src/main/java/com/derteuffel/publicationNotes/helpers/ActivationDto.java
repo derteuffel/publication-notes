@@ -2,17 +2,17 @@ package com.derteuffel.publicationNotes.helpers;
 
 public class ActivationDto {
 
-    private String matricule;
+    private String niveau;
     private String periode;
     private String telephone;
 
 
-    public String getMatricule() {
-        return matricule;
+    public String getNiveau() {
+        return niveau;
     }
 
-    public void setMatricule(String matricule) {
-        this.matricule = matricule;
+    public void setNiveau(String niveau) {
+        this.niveau = niveau;
     }
 
     public String getPeriode() {

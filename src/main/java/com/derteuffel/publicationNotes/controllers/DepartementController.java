@@ -102,6 +102,23 @@ public class DepartementController {
         }
     }
 
+    @GetMapping("")
+    public ResponseEntity<List<Departement>> getAll(){
+        List<Departement> lists = new ArrayList<>();
+        try{
+            departementService.findAll().forEach(lists :: add);
+            if (lists.isEmpty()){
+                System.out.println(lists);
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }else {
+                System.out.println(lists);
+                return new ResponseEntity<>(lists, HttpStatus.OK);
+            }
+        }catch (Exception e){
+            return new ResponseEntity<>((List<Departement>) null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/options/save/{id}")
     public ResponseEntity<?> addOptions(@RequestParam("file") MultipartFile file, @PathVariable Long id) throws IOException {
         try {

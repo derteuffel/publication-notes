@@ -1,6 +1,7 @@
 package com.derteuffel.publicationNotes.services;
 
 import com.derteuffel.publicationNotes.entities.Payment;
+import com.derteuffel.publicationNotes.entities.User;
 import com.derteuffel.publicationNotes.entities.UserInfo;
 import com.derteuffel.publicationNotes.helpers.ActivationDto;
 import com.derteuffel.publicationNotes.helpers.Generations;
@@ -8,6 +9,7 @@ import com.derteuffel.publicationNotes.helpers.MessageSending;
 import com.derteuffel.publicationNotes.helpers.PaymentDto;
 import com.derteuffel.publicationNotes.repositories.PaymentRepository;
 import com.derteuffel.publicationNotes.repositories.UserInfoRepository;
+import com.derteuffel.publicationNotes.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,9 @@ public class PaymentService {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private UserInfoRepository userInfoRepository;
@@ -40,6 +45,7 @@ public class PaymentService {
         payment.setTauxDuJour(paymentDto.getTaux());
         payment.setCode(generations.generateInt()+"");
         payment.setPeriode(paymentDto.getPeriode());
+        payment.setNiveau(paymentDto.getNiveau());
         if (paymentDto.getDevise().equals("USD")){
             payment.setMontantDollar(Double.parseDouble(paymentDto.getMontant()));
             payment.setMontantFranc(Double.parseDouble(paymentDto.getMontant())*paymentDto.getTaux());
@@ -110,9 +116,10 @@ public class PaymentService {
     public void activatePayment(Long id, ActivationDto activationDto){
 
         System.out.println("je suis dans la foncfion");
-        UserInfo userInfo = userInfoRepository.getOne(id);
+        User user = userRepository.getOne(id);
+        UserInfo userInfo = user.getUserInfo();
         MessageSending messageSending = new MessageSending();
-        Payment payment = paymentRepository.findByUserInfo_IdAndPeriode(userInfo.getId(), activationDto.getPeriode());
+        Payment payment = paymentRepository.findByUserInfo_IdAndPeriodeAndNiveau(userInfo.getId(), activationDto.getPeriode(), activationDto.getNiveau());
         System.out.println("pret a entrer dans la boucle");
         if (payment != null) {
 
@@ -194,7 +201,7 @@ public class PaymentService {
     public void resentCode(Long id, ActivationDto activationDto){
         UserInfo userInfo = userInfoRepository.getOne(id);
         MessageSending messageSending = new MessageSending();
-        Payment payment = paymentRepository.findByUserInfo_IdAndPeriode(userInfo.getId(), activationDto.getPeriode());
+        Payment payment = paymentRepository.findByUserInfo_IdAndPeriodeAndNiveau(userInfo.getId(), activationDto.getPeriode(), activationDto.getNiveau());
 
         if (payment != null){
             messageSending.sendMessage(""+activationDto.getTelephone(),"Votre code d'activation : "+ payment.getCode());

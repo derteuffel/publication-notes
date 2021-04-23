@@ -4,11 +4,20 @@ public class PaymentDto {
 
     private String description;
     private String montant;
+    private String niveau;
     private int taux;
     private String devise;
     private String periode;
     private String telephone;
     private String matricule;
+
+    public String getNiveau() {
+        return niveau;
+    }
+
+    public void setNiveau(String niveau) {
+        this.niveau = niveau;
+    }
 
     public String getDescription() {
         return description;

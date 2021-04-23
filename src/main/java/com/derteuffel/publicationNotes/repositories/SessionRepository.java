@@ -15,5 +15,6 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     Session findByUserInfo_IdAndNameAndNiveau(Long id, Periode name, Niveau niveau);
     List<Session> findAllByUserInfo_IdAndNiveau(Long id, Niveau niveau);
     List<Session> findAllByUserInfo_Id(Long id);
+    List<Session> findAllByUserInfo_IdAndActive(Long id, Boolean active);
     List<Session> findAllByNameAndNiveauAndSessionDate(Periode name, Niveau niveau, String sessionDate);
 }

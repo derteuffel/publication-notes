@@ -27,6 +27,7 @@ public class Session implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(length = 30)
     private Niveau niveau;
+    private Boolean active;
     @ManyToOne
     private UserInfo userInfo;
 
@@ -108,5 +109,13 @@ public class Session implements Serializable {
 
     public void setNiveau(Niveau niveau) {
         this.niveau = niveau;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 }

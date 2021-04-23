@@ -20,6 +20,7 @@ public class Payment implements Serializable{
     private String numPaiement;
     private Double montantDollar;
     private String periode;
+    private String niveau;
     private Double montantFranc;
     private int tauxDuJour;
     @Temporal(TemporalType.DATE)
@@ -119,5 +120,13 @@ public class Payment implements Serializable{
 
     public void setNumPaiement(String numPaiement) {
         this.numPaiement = numPaiement;
+    }
+
+    public String getNiveau() {
+        return niveau;
+    }
+
+    public void setNiveau(String niveau) {
+        this.niveau = niveau;
     }
 }
